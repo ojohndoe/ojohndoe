@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BBS Network - Terminal IRC Client</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body, html { height: 100%; font-family: monospace; background-color: #0d1117; color: #c9d1d9; overflow: hidden; }
+        
+        /* Estrutura de Quadros (10% | 80% | 10%) */
+        .main-container { display: flex; height: 100vh; width: 100vw; }
+        
+        /* Quadro Esquerdo: Canais e Status (10%) */
+        .frame-left { flex: 0 0 10%; background-color: #161b22; border-right: 2px solid #30363d; padding: 12px; font-size: 0.8rem; }
+        
+        /* Quadro Central: Console do IRC e Input (80%) */
+        .frame-center { flex: 0 0 80%; background-color: #0d1117; display: flex; flex-direction: column; height: 100%; padding: 15px; gap: 10px; }
+        
+        /* Quadro Direito: Comandos de Ajuda (10%) */
+        .frame-right { flex: 0 0 10%; background-color: #161b22; border-left: 2px solid #30363d; padding: 12px; font-size: 0.8rem; }
+        
+        /* Componentes de Interface */
+        h3 { color: #58a6ff; margin-bottom: 10px; border-bottom: 1px solid #30363d; padding-bottom: 4px; font-size: 0.85rem; text-align: center; }
+        .panel { border: 1px solid #30363d; padding: 12px; background: #161b22; border-radius: 6px; }
+        
+        /* Configurações do Servidor */
+        .setup-row { display: flex; gap: 10px; margin-bottom: 5px; flex-wrap: wrap; }
+        .input-short { background: #0d1117; color: #e2e8f0; border: 1px solid #30363d; border-radius: 4px; padding: 6px; font-family: monospace; font-size: 0.8rem; }
+        
+        /* Console de Logs IRC */
+        .irc-terminal { flex: 1; background: #010409; border: 1px solid #30363d; border-radius: 4px; padding: 10px; overflow-y: auto; font-size: 0.85rem; color: #7ee787; font-family: Courier, monospace; }
+        .status-msg { color: #8b949e; }
+        .server-msg { color: #ffa657; }
+        .user-msg { color: #58a6ff; }
+        
+        /* Linha de Comando Inbox */
+        .input-row { display: flex; gap: 8px; }
+        .textbox-terminal { flex: 1; background: #161b22; color: #e2e8f0; border: 1px solid #30363d; border-radius: 4px; padding: 10px; font-family: monospace; font-size: 0.9rem; }
+        .textbox-terminal:focus { border-color: #58a6ff; outline: none; }
+        
+        .btn { background: #21262d; color: #58a6ff; border: 1px solid #30363d; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-family: monospace; font-weight: bold; }
+        .btn:hover { background: #30363d; }
+        .btn-connect { background: #238636; color: white; border-color: #2ea44f; }
+        .btn-connect:hover { background: #2ea44f; }
+        
+        .tag { display: block; padding: 4px; margin-bottom: 5px; background: #21262d; text-align: center; border-radius: 3px; font-size: 0.75rem; border: 1px solid #30363d;}
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        
+        <aside class="frame-left">
+            <h3>Canais IRC</h3>
+            <div id="channels-list">
+                <span class="tag" style="color: #ffa657;">#Status</span>
+                <span class="tag" id="active-chan-tag" style="color: #8b949e;">Sem canal</span>
+            </div>
+        </aside>
+
+        <main class="frame-center">
+            
+            <div class="panel setup-row">
+                <input type="text" id="irc-server" class="input-short" value="irc.freenode.net" style="width: 200px;" placeholder="Servidor">
+                <input type="text" id="irc-port" class="input-short" value="443" style="width: 60px;" placeholder="Porta">
+                <input type="text" id="irc-nick" class="input-short" value="BBS_Player" style="width: 120px;" placeholder="Nickname">
+                <button class="btn btn-connect" onclick="conectarIRC()">Connect</button>
+                <button class="btn" style="color: #ff7b72;" onclick="desconectarIRC()">Disconnect</button>
+            </div>
+
+            <div class="irc-terminal" id="irc-log">
+                <p class="status-msg">[BBS] Terminal Pronto. Configure as credenciais acima e pressione Connect.</p>
+                <p class="status-msg">[BBS] Nota: A conexão usa um túnel WebIRC compatível com o GitHub Pages.</p>
+            </div>
+
+            <div class="input-row">
+                <input type="text" id="irc-input" class="textbox-terminal" placeholder="Digite mensagens ou comandos (ex: /join #canal, /msg NickServ...)" onkeydown="capturarEnter(event)">
+                <button class="btn" onclick="enviarLinhaTerminal()">Enviar</button>
+            </div>
+        </main>
+
+        <aside class="frame-right">
+            <h3>Guia de Sintaxe</h3>
+            <p style="font-size: 0.7rem; color: #8b949e; line-height: 1.4;">
+                <b>Entrar em sala:</b><br>/join #canal<br><br>
+                <b>NickServ Auth:</b><br>/msg NickServ IDENTIFY senha<br><br>
+                <b>ChanServ Op:</b><br>/msg ChanServ INVITE #canal
+            </p>
+        </aside>
+
+    </div>
+
+    <script>
+        let socket = null;
+
+        function imprimirNoConsole(texto, tipo = "status-msg") {
+            const consoleBox = document.getElementById('irc-log');
+            const data = new Date().toLocaleTimeString();
+            consoleBox.innerHTML += `<p class="${tipo}">[${data}] ${texto}</p>`;
+            consoleBox.scrollTop = consoleBox.scrollHeight;
+        }
+
+        function conectarIRC() {
+            const servidor = document.getElementById('irc-server').value;
+            const nick = document.getElementById('irc-nick').value;
+            
+            imprimirNoConsole(`Abrindo túnel WebSocket seguro para ${servidor}...`, "status-msg");
+
+            // Instancia o cliente usando o proxy público do KiwiIRC (Compatível com TLS/SSL obrigatório do GitHub)
+            const proxyUrl = `wss://webirc.kiwiirc.com/client/?transport=websocket`;
+            
+            try {
+                socket = new WebSocket(proxyUrl);
+
+                socket.onopen = function() {
+                    imprimirNoConsole("Conexão WebSocket Estabelecida! Negociando Handshake IRC...", "status-msg");
+                    // Protocolo base de autenticação RFC 1459 IRC
+                    socket.send(`NICK ${nick}\r\n`);
+                    socket.send(`USER ${nick} 0 * :BBS Engine User\r\n`);
+                };
+
+                socket.onmessage = function(event) {
+                    processarMensagemServidor(event.data);
+                };
+
+                socket.onerror = function(err) {
+                    imprimirNoConsole("Erro no barramento de rede do WebSocket.", "server-msg");
+                };
+
+                socket.onclose = function() {
+                    imprimirNoConsole("Conexão encerrada com o servidor remoto.", "status-msg");
+                };
+
+            } catch (e) {
+                imprimirNoConsole("Falha ao inicializar o socket.", "server-msg");
+            }
+        }
+
+        function processarMensagemServidor(dados) {
+            // Divide o buffer bruto por quebras de linha padrão IRC (\r\n)
+            const linhas = dados.split('\r\n');
+            linhas.forEach(linha => {
+                if (!linha.trim()) return;
+
+                // Responde ao PING do servidor automaticamente para manter a sessão viva (Anti-Timeout)
+                if (linha.startsWith("PING")) {
+                    socket.send(linha.replace("PING", "PONG") + "\r\n");
+                    return;
+                }
+
+                // Limpa e exibe a saída purificada
+                imprimirNoConsole(linha, "server-msg");
+            });
+        }
+
+        function capturarEnter(event) {
+            if (event.key === 'Enter') {
+                enviarLinhaTerminal();
+            }
+        }
+
+        function enviarLinhaTerminal() {
+            const input = document.getElementById('irc-input');
+            const comandoBruto = input.value.trim();
+            if (!comandoBruto || !socket) return;
+
+            // Tratamento de comandos locais (/join, /msg, etc)
+            if (comandoBruto.startsWith("/")) {
+                const partes = comandoBruto.substring(1).split(" ");
+                const cmd = partes[0].toUpperCase();
+                const argumento = partes.slice(1).join(" ");
+
+                if (cmd === "JOIN") {
+                    socket.send(`JOIN ${argumento}\r\n`);
+                    document.getElementById('active-chan-tag').innerText = argumento;
+                    document.getElementById('active-chan-tag').style.color = "#7ee787";
+                } else if (cmd === "MSG") {
+                    socket.send(`PRIVMSG ${argumento}\r\n`);
+                } else {
+                    // Envia o comando estruturado genérico diretamente ao servidor
+                    socket.send(`${cmd} ${argumento}\r\n`);
+                }
+                imprimirNoConsole(`> ${comandoBruto}`, "user-msg");
+            } else {
+                // Mensagem normal para o canal atual ativo
+                const canalAtivo = document.getElementById('active-chan-tag').innerText;
+                if (canalAtivo !== "Sem canal") {
+                    socket.send(`PRIVMSG ${canalAtivo} :${comandoBruto}\r\n`);
+                    imprimirNoConsole(`<Você em ${canalAtivo}>: ${comandoBruto}`, "user-msg");
+                } else {
+                    imprimirNoConsole("Erro: Use /join #canal antes de enviar mensagens de texto comum.", "status-msg");
+                }
+            }
+
+            input.value = "";
+        }
+
+        function desconectarIRC() {
+            if (socket) {
+                socket.close();
+                imprimirNoConsole("Desconectado por comando do operador.", "status-msg");
+            }
+        }
+    </script>
+</body>
+</html>
