@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[BBS ENGINE] Painel do Jogo RPG</title>
+    <style>
+        body {
+            background-color: #0a0a0a;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 20px;
+        }
+        header {
+            border-bottom: 2px dashed #00ff00;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        h1, h2 {
+            margin: 5px 0;
+            text-transform: uppercase;
+        }
+        .status-bar {
+            background-color: #111;
+            padding: 10px;
+            border: 1px solid #00ff00;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .grid-container {
+            display: flex;
+            gap: 20px;
+        }
+        .painel {
+            border: 1px solid #00ff00;
+            padding: 15px;
+            width: 50%;
+            height: 450px;
+            background-color: #050505;
+            display: flex;
+            flex-direction: column;
+        }
+        .conteudo-scroll {
+            flex-grow: 1;
+            overflow-y: auto;
+            margin-top: 10px;
+            padding-right: 5px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        li {
+            padding: 6px;
+            border-bottom: 1px solid #003300;
+        }
+        a {
+            color: #00ffff;
+            text-decoration: none;
+        }
+        a:hover {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+        /* Custom Scrollbar estilo terminal */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #005500; border: 1px solid #00ff00; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>[BBS RPG ENGINE] - Sistema de Simulação Híbrida</h1>
+        <div>Conectado à Matriz de Dados Offline via APIs</div>
+    </header>
+
+    <div class="status-bar">
+        <span>SISTEMA: <strong style="color: #fff;">ATIVO</strong></span>
+        <span>MECÂNICA: <strong style="color: #ff00ff;">3D&T Pocket</strong></span>
+        <span>CICLO DO MOTOR: <span id="timer-status">0s</span></span>
+    </div>
+
+    <div class="grid-container">
+        
+        <div class="painel">
+            <h2>[Wikipedia] Temas Recentes (1s)</h2>
+            <div class="conteudo-scroll">
+                <ul id="lista-temas">
+                    <li>[Aguardando conexão com o motor externo...]</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="painel">
+            <h2>[eRepublik] Banco de NPCs Online</h2>
+            <div class="conteudo-scroll">
+                <ul id="lista-npcs">
+                    <li>[Aguardando processamento dos 7 dados...]</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // CONFIGURAÇÃO DE DIRECIONAMENTO DE BACKEND:
+        // Altere a URL abaixo para o arquivo correspondente que sua hospedagem suportar.
+        // Exemplos: "api.py", "index.php", "cgi-bin/motor.cgi" ou "/" (se usar Flask)
+        const BACKEND_URL = "/api-dados"; 
+
+        async function atualizarPainelJogo() {
+            try {
+                // Puxa os dados gerados dinamicamente pelo script de background (.py, .php ou .cgi)
+                const resposta = await fetch(BACKEND_URL);
+                if (!resposta.ok) throw new Error('Falha na resposta do servidor.');
+                
+                const dados = await json();
+                
+                // 1. Atualiza o painel da Wikipedia
+                const listaTemas = document.getElementById('lista-temas');
+                listaTemas.innerHTML = '';
+                dados.temas.reverse().slice(0, 20).forEach(tema => {
+                    listaTemas.innerHTML += `<li>[TEMA] <a href="${tema.link}" target="_blank">${tema.titulo}</a></li>`;
+                });
+
+                // 2. Atualiza o painel dos NPCs do eRepublik
+                const listaNpcs = document.getElementById('lista-npcs');
+                listaNpcs.innerHTML = '';
+                dados.npcs.forEach(npc => {
+                    listaNpcs.innerHTML += `
+                        <li>
+                            <b>ID:</b> ${npc.id} - <a href="site_offline/${npc.id}.html">${npc.nome}</a><br>
+                            <small>Região: ${npc.regiao} | MU: ${npc.mu} | Partido: ${npc.partido} | Amigos: ${npc.friends}</small>
+                        </li>
+                    `;
+                });
+
+                document.getElementById('timer-status').innerText = "Sincronizado";
+                document.getElementById('timer-status').style.color = "#00ff00";
+
+            } catch (erro) {
+                console.error("Erro ao conectar com o script de background:", erro);
+                document.getElementById('timer-status').innerText = "Erro de Conexão";
+                document.getElementById('timer-status').style.color = "#ff0000";
+            }
+        }
+
+        // Executa a primeira carga e define o intervalo de atualização idêntico ao motor (a cada 2-3 segundos na tela do player)
+        atualizarPainelJogo();
+        setInterval(atualizarPainelJogo, 3000);
+    </script>
+</body>
+</html>
