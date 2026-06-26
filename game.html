@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>BBS Motor Engine</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #0d1117; color: #c9d1d9; font-family: monospace; padding: 15px; }
+        h2, h3 { color: #58a6ff; margin-bottom: 10px; }
+        .header-panel { border: 1px solid #30363d; padding: 12px; background: #161b22; margin-bottom: 15px; border-radius: 6px; }
+        .grid-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 15px; }
+        .panel { border: 1px solid #30363d; padding: 12px; background: #0d1117; border-radius: 6px; height: 320px; overflow-y: auto; }
+        .console-log { background: #010409; color: #7ee787; font-size: 0.85rem; padding: 8px; border-left: 4px solid #34d058; font-family: monospace; }
+        .btn { background: #238636; color: white; border: 1px solid #2ea44f; padding: 8px 14px; cursor: pointer; border-radius: 6px; font-weight: bold; font-family: monospace; }
+        .btn:hover { background: #2ea44f; }
+        .btn-alt { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; padding: 8px 14px; cursor: pointer; border-radius: 6px; font-family: monospace; margin-left: 5px; }
+        .btn-alt:hover { background: #30363d; }
+        ul { list-style: none; padding-left: 5px; }
+        li { margin-bottom: 6px; padding: 6px; background: #161b22; border-radius: 4px; border: 1px solid #30363d; }
+        a { color: #58a6ff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div id="router-root"></div>
+
+    <script>
+        // Dados Estruturais Base extraídos da API do Wikipedia.org
+        const IDIOMAS_WIKI = ["Português", "English", "Español", "Deutsch", "Français", "Italiano", "Русский", "日本語", "Cebuano", "Nederlands", "Svenska"];
+        const TEMAS_ALGORITMO = ["Instalacoes_Eletricas", "Logica_de_Programacao", "Modelagem_Linguistica", "Arquitetura_BBS", "Saturacao_de_Redes", "Protocolo_FidoNet", "Seguranca_Virtual"];
+
+        // Inicializador do Ecossistema Base
+        function initDatabase() {
+            if (!localStorage.getItem('RPG_DIA_ATUAL')) localStorage.setItem('RPG_DIA_ATUAL', '1');
+            if (!localStorage.getItem('RPG_MESSAGES')) localStorage.setItem('RPG_MESSAGES', JSON.stringify(["[Sistema] Caixa postal sincronizada com o fuso local."]));
+            
+            if (!localStorage.getItem('RPG_NPC_ARRAY')) {
+                let npcs_gerados = [];
+                for (let i = 1; i <= 101; i++) {
+                    let id_unico = Math.floor(1000000 + Math.random() * 9000000);
+                    let lang = IDIOMAS_WIKI[Math.floor(Math.random() * IDIOMAS_WIKI.length)];
+                    let c1 = Math.floor(1 + Math.random() * 9), c2 = Math.floor(1 + Math.random() * 9);
+                    let c3 = Math.floor(1 + Math.random() * 9), c4 = Math.floor(1 + Math.random() * 9);
+                    
+                    npcs_gerados.push({
+                        id: id_unico,
+                        nome: `NPC_Agente_${i}`,
+                        apelido: `Anon_${id_unico.toString().substring(0,3)}`,
+                        email: `agente_${id_unico}@bbs.io`,
+                        idioma: lang,
+                        coordenadas: `[${c1}][${c2}][${c3}][${c4}]`,
+                        creditos: Math.floor(150 + Math.random() * 350),
+                        influencia: 10,
+                        hasMU: Math.random() > 0.5,
+                        hasJornal: Math.random() > 0.6,
+                        hasPartido: Math.random() > 0.7
+                    });
+                }
+                localStorage.setItem('RPG_NPC_ARRAY', JSON.stringify(npcs_gerados));
+            }
+        }
+
+        function obterMinutoDoDia() {
+            const agora = new Date();
+            return (agora.getHours() * 60) + agora.getMinutes();
+        }
+
+        function obterSegmentoTempo(minuto) {
+            if (minuto <= 240) return "Habitacional 🛏️ (Madrugada/Despertar)";
+            if (minuto <= 480) return "Vias Globais 🚗 (Fluxo de Ida e Trânsito)";
+            if (minuto <= 1000) return "Pico Comercial/Lojista 💼 (Trabalho/Investimento)";
+            if (minuto <= 1200) return "Comunicação 📡 (Absorção de Conhecimento)";
+            return "Recolhimento 🏠 (Retorno à Zona Habitacional)";
+        }
+
+        function renderEngine() {
+            initDatabase();
+            const params = new URLSearchParams(window.location.search);
+            const view = params.get('view');
+            const npcId = params.get('npc');
+            
+            const npcs = JSON.parse(localStorage.getItem('RPG_NPC_ARRAY'));
+            const dia = localStorage.getItem('RPG_DIA_ATUAL');
+            const minuto = obterMinutoDoDia();
+            
+            const root = document.getElementById('router-root');
+            let content = "";
+
+            // ROTA: VISUALIZAR PERFIL DO NPC
+            if (npcId) {
+                const npc = npcs.find(n => n.id == npcId);
+                content = `
+                    <h2>FICHA TECNICA DO NPC: ${npc.nome}</h2>
+                    <p><b>Apelido:</b> ${npc.apelido} | <b>E-mail:</b> ${npc.email}</p>
+                    <p><b>ID Unidade:</b> ${npc.id} | <b>Idioma de Ativo:</b> ${npc.idioma}</p>
+                    <p><b>Localização Atual:</b> Camada Geográfica ${npc.coordenadas}</p>
+                    <p><b>Saldo Financeiro:</b> ${npc.creditos} Créditos | <b>Influência:</b> ${npc.influencia}</p>
+                    <hr style="margin:15px 0; border-color:#30363d;">
+                    <h3>Registros de Infraestrutura associados no Mapa:</h3>
+                    <ul>
+                        <li>🪖 <b>Unidade Militar (MU):</b> ${npc.hasMU ? `<a href="#">QG Military Unit de ${npc.apelido}</a>` : 'Nenhuma vinculada'}</li>
+                        <li>📰 <b>Mídia/Imprensa:</b> ${npc.hasJornal ? `<a href="#">Diário de Notícias do Agente</a>` : 'Nenhum periódico'}</li>
+                        <li>⚖️ <b>Legenda Partidária:</b> ${npc.hasPartido ? `<a href="#">Filiado ao Partido Regional</a>` : 'Sem filiação política'}</li>
+                    </ul>
+                    <br>
+                    <a href="game.html" class="btn">< Voltar ao Console</a>
+                `;
+            }
+            // ROTA: LISTA DE 101 CIDADÃOS
+            else if (view === 'list') {
+                content = `<h2>👥 Registro de Cidadãos Oficiais (${npcs.length} NPCs)</h2><ul>`;
+                npcs.forEach(n => {
+                    content += `<li>[ID: ${n.id}] - <a href="game.html?npc=${n.id}"><b>${n.nome}</b></a> (Setor: ${n.coordenadas}) - Idioma: ${n.idioma}</li>`;
+                });
+                content += `</ul><br><a href="game.html" class="btn">< Voltar</a>`;
+            }
+            // ROTA: JORNAIS
+            else if (view === 'jornais') {
+                content = `<h2>📰 Imprensa Oficial e Redações Ativas</h2><ul>`;
+                npcs.filter(n => n.hasJornal).forEach(n => {
+                    content += `<li>Imprensa Virtual -> <a href="game.html?npc=${n.id}">Diário de ${n.apelido}</a> (Quadrante ${n.coordenadas})</li>`;
+                });
+                content += `</ul><br><a href="game.html" class="btn">< Voltar</a>`;
+            }
+            // ROTA: MUs MILITARES
+            else if (view === 'mus') {
+                content = `<h2>🪖 Unidades Militares Estratégicas (MUs)</h2><ul>`;
+                npcs.filter(n => n.hasMU).forEach(n => {
+                    content += `<li>Quartel MU -> <a href="game.html?npc=${n.id}">Unidade de ${n.nome}</a></li>`;
+                });
+                content += `</ul><br><a href="game.html" class="btn">< Voltar</a>`;
+            }
+            // DASHBOARD DO ENGINE (PADRÃO)
+            else {
+                content = `
+                    <div class="header-panel">
+                        <h2>🎮 CORE BBS RPG | DIA VIRTUAL: ${dia} | TEMPO: ${minuto}/1440 min</h2>
+                        <p>Fuso Horário Operacional: <b style="color:#ffa657;">${obterSegmentoTempo(minuto)}</b></p>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <button class="btn" onclick="passarDiaComPesquisa()">[1] Pesquisar Novo Tema (Avançar Dia)</button>
+                        <button class="btn-alt" onclick="enviarEmailAgendamento()">[2] Enviar E-mail de Interação</button>
+                    </div>
+
+                    <div class="grid-layout">
+                        <div>
+                            <h3>📡 Atividade Periférica dos Agentes (Tempo Real)</h3>
+                            <div class="panel console-log" id="monitor-virtual">
+                                Conectando ao barramento lógico da rede...
+                            </div>
+                        </div>
+                        <div>
+                            <h3>📨 Histórico Lógico de E-mails</h3>
+                            <div class="panel" id="email-monitor" style="font-size:0.8rem; background:#161b22;"></div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            root.innerHTML = content;
+            if(!view && !npcId) { iniciarAtividadesEmTempoReal(); atualizarMensagensInterface(); }
+        }
+
+        function passarDiaComPesquisa() {
+            let dia = parseInt(localStorage.getItem('RPG_DIA_ATUAL')) + 1;
+            localStorage.setItem('RPG_DIA_ATUAL', dia);
+            
+            const temaSorteado = TEMAS_ALGORITMO[Math.floor(Math.random() * TEMAS_ALGORITMO.length)];
+            alert(`[Avanço de Turno] Dia de pesquisa computado.\nTema absorvido pela IA: https://pt.wikipedia.org/wiki/${temaSorteado}\n\nEfeito de Cenário: Os nós do quadrante [5][5][5][5] aplicaram regras de otimização em ${temaSorteado}.`);
+            renderEngine();
+        }
+
+        function enviarEmailAgendamento() {
+            let log = JSON.parse(localStorage.getItem('RPG_MESSAGES'));
+            const minuto = obterMinutoDoDia();
+            let msg = `[Minuto ${minuto}] Usuário disparou agendamento de lógica para o quadrante comercial [4][4][4][4].`;
+            
+            if (minuto >= 481 && minuto <= 1000) {
+                msg += ` [ALERTA] Risco de desencontro crítico devido à densidade de tráfego de TI local!`;
+            }
+            
+            log.unshift(msg);
+            localStorage.setItem('RPG_MESSAGES', JSON.stringify(log));
+            atualizarMensagensInterface();
+        }
+
+        function atualizarMensagensInterface() {
+            const mBox = document.getElementById('email-monitor');
+            if(mBox) {
+                let log = JSON.parse(localStorage.getItem('RPG_MESSAGES'));
+                mBox.innerHTML = log.map(m => `<p style='border-bottom:1px solid #30363d; padding:6px; color:#e2e8f0;'>${m}</p>`).join('');
+            }
+        }
+
+        function iniciarAtividadesEmTempoReal() {
+            const monitor = document.getElementById('monitor-virtual');
+            if(!monitor) return;
+            monitor.innerHTML = "";
+            
+            setInterval(() => {
+                const npcs = JSON.parse(localStorage.getItem('RPG_NPC_ARRAY'));
+                const min = obterMinutoDoDia();
+                const npc = npcs[Math.floor(Math.random() * npcs.length)];
+                
+                const feeds = [
+                    `[Tempo ${min}m] ${npc.nome} movimentou-se para a zona ${obterSegmentoTempo(min)}.`,
+                    `[Tempo ${min}m] ${npc.apelido} vendeu mentoria gramatical por créditos usando o idioma ${npc.idioma}.`,
+                    `[Tempo ${min}m] ${npc.nome} sincronizou sua tabela no quadrante ${npc.coordenadas} para evitar travas.`
+                ];
+                
+                monitor.innerHTML += `<p style="margin-bottom:4px;">${feeds[Math.floor(Math.random() * feeds.length)]}</p>`;
+                monitor.scrollTop = monitor.scrollHeight;
+            }, 2000);
+        }
+
+        window.onload = renderEngine;
+    </script>
+</body>
+</html>

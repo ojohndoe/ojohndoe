@@ -3,248 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consultoria IA, Elétrica & Lógica</title>
+    <title>Consultoria IA & Motor BBS RPG</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body, html {
-            height: 100%;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0f172a;
-            color: #e2e8f0;
-            overflow: hidden;
-        }
-        /* Simulação da Estrutura de Frames (10% | 80% | 10%) */
-        .container {
-            display: flex;
-            height: 100vh;
-            width: 100vw;
-        }
-        .frame-left {
-            flex: 0 0 10%;
-            background-color: #1e293b;
-            border-right: 2px solid #334155;
-            padding: 15px;
-            font-size: 0.85rem;
-            overflow-y: auto;
-        }
-        .frame-center {
-            flex: 0 0 80%;
-            background-color: #0f172a;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .frame-right {
-            flex: 0 0 10%;
-            background-color: #1e293b;
-            border-left: 2px solid #334155;
-            padding: 15px;
-            font-size: 0.85rem;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        /* Componentes Gerais */
-        h2, h3 {
-            color: #38bdf8;
-            margin-bottom: 10px;
-        }
-        ul {
-            list-style-type: none;
-        }
-        li {
-            margin-bottom: 8px;
-            padding: 5px;
-            background: #334155;
-            border-radius: 4px;
-        }
-        .canvas-container {
-            position: relative;
-            background: #020617;
-            border: 1px solid #38bdf8;
-            border-radius: 8px;
-            padding: 10px;
-        }
-        canvas {
-            display: block;
-            width: 100%;
-            height: 250px;
-            background: #020617;
-        }
-        .ad-space {
-            border: 2px dashed #475569;
-            padding: 20px 10px;
-            text-align: center;
-            color: #64748b;
-            border-radius: 6px;
-            font-style: italic;
-        }
-        .console-box {
-            background-color: #011627;
-            border-left: 4px solid #10b981;
-            padding: 15px;
-            font-family: monospace;
-            border-radius: 4px;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body, html { height: 100%; font-family: monospace; background-color: #0d1117; color: #c9d1d9; overflow: hidden; }
+        
+        /* Estrutura de Quadros Flexbox (10% | 80% | 10%) */
+        .main-container { display: flex; height: 100vh; width: 100vw; }
+        
+        .frame-left { flex: 0 0 10%; background-color: #161b22; border-right: 2px solid #30363d; padding: 12px; font-size: 0.8rem; overflow-y: auto; }
+        .frame-center { flex: 0 0 80%; background-color: #0d1117; display: flex; flex-direction: column; height: 100%; }
+        .frame-right { flex: 0 0 10%; background-color: #161b22; border-left: 2px solid #30363d; padding: 12px; font-size: 0.8rem; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        
+        iframe { width: 100%; height: 100%; border: none; background: #0d1117; }
+        
+        h3 { color: #58a6ff; margin-bottom: 8px; border-bottom: 1px solid #30363d; padding-bottom: 3px; font-size: 0.85rem;}
+        .menu-link { display: block; background: #21262d; color: #58a6ff; text-decoration: none; padding: 8px; margin-bottom: 6px; border-radius: 4px; text-align: center; font-size: 0.75rem; border: 1px solid #30363d; }
+        .menu-link:hover { background: #30363d; color: #79c0ff; }
+        
+        .ad-box { border: 1px dashed #8b949e; padding: 15px 5px; text-align: center; color: #8b949e; border-radius: 4px; font-style: italic; font-size: 0.75rem; background: #0d1117; }
+        .concorrencia { border: 1px solid #f85149; color: #f85149; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        
+    <div class="main-container">
         <aside class="frame-left">
-            <h2>Portfólio</h2>
-            <p style="font-size:0.75rem; color:#94a3b8; margin-bottom:15px;">Nossos escopos e frentes de atuação:</p>
-            <ul>
-                <li>🛠️ Consultoria em Regras de IA</li>
-                <li>⚡ Projetos Elétricos Residenciais</li>
-                <li>📐 Arquitetura de Algoritmos</li>
-                <li>🎮 Engenharia de Prompt e RPG</li>
-                <li>🤖 Lógica de Automação</li>
-                <li>🔒 Travas de Segurança Virtual</li>
-            </ul>
+            <h3>Menu Consultoria</h3>
+            <a href="game.html" target="conteudo-frame" class="menu-link">🎮 Executar Jogo</a>
+            <a href="canvas_animation.html" target="conteudo-frame" class="menu-link">📐 Fluxo Canvas</a>
+            
+            <h3 style="margin-top:20px;">Filtros do Mapa</h3>
+            <div id="links-dinamicos">
+                <a href="game.html?view=list" target="conteudo-frame" class="menu-link" style="color:#79c0ff;">👥 101 Cidadãos</a>
+                <a href="game.html?view=jornais" target="conteudo-frame" class="menu-link" style="color:#d2a8ff;">📰 Imprensa</a>
+                <a href="game.html?view=mus" target="conteudo-frame" class="menu-link" style="color:#ff7b72;">🪖 Unidades MU</a>
+            </div>
         </aside>
 
         <main class="frame-center">
-            <header>
-                <h1>Consultoria em Regras de I.A. & Engenharia de Sistemas</h1>
-                <p>Análise de arquitetura e infraestrutura virtual utilizando o Gemini como console de processamento.</p>
-            </header>
-
-            <hr style="border-color: #334155;">
-
-            <section class="canvas-container">
-                <h3>Visualização de Ciclo das Regras (Canvas Ativo)</h3>
-                <canvas id="regraCanvas"></canvas>
-            </section>
-
-            <section>
-                <h3>Revisão das Diretrizes Fundamentais (Saved Information)</h3>
-                <p style="margin-bottom: 10px;">Como transformamos regras textuais estritas em mídia de jogo funcional interpretada pelo Console Gemini:</p>
-                
-                <div class="console-box">
-                    <p><span style="color:#f78c6c;">[Regra 001]</span> Integridade do Código: Trava matemática absoluta (Limite estável de 1440 min/dia e teto máximo de 101 NPCs).</p>
-                    <br>
-                    <p><span style="color:#f78c6c;">[Regra 002]</span> Evolução de Carreira: Fixação geográfica nas coordenadas [1][1][1][1] a [9][9][9][9] para NPCs com 3 habilidades dominadas.</p>
-                    <br>
-                    <p><span style="color:#f78c6c;">[Regra 003]</span> Janela Cronológica: Fluxo dinâmico de tráfego segmentado em blocos rotineiros baseados no tempo virtual linear.</p>
-                </div>
-            </section>
-
-            <section>
-                <h3>O Gemini como Console de Execução</h3>
-                <p>Nesta arquitetura, a inteligência artificial não atua apenas como geradora de texto, mas sim como um <strong>compilador de estado e motor de física social</strong>. Cada interação do usuário atualiza as matrizes geográficas, recalcula as moedas baseadas em idiomas e dita o fluxo de tráfego urbano dos agentes virtuais sem intervenção de banco de dados tradicional rígido, baseando-se estritamente na credibilidade e lógica de contexto.</p>
-            </section>
+            <iframe name="conteudo-frame" src="game.html"></iframe>
         </main>
 
         <aside class="frame-right">
-            <h2>Mercado</h2>
-            <p style="font-size:0.75rem; color:#94a3b8;">Espaço reservado para monetização, credibilidade e contratos autônomos à distância:</p>
+            <h3>Ads & Parcerias</h3>
+            <div class="ad-box">⚡ Projetos Elétricos e I.A.</div>
+            <div class="ad-box">🤖 Redes e Algoritmos</div>
             
-            <div class="ad-space">
-                Anúncio:<br>Softwares de Automação Elétrica
-            </div>
-            
-            <div class="ad-space">
-                Espaço Parceiro:<br>Certificações I.A.
-            </div>
-
-            <div class="ad-space" style="border-color: #ef4444; color: #f87171;">
-                Vitrine de Concorrência:<br><span style="font-size:0.7rem;">Contratação por Preferência e Confiança</span>
-            </div>
+            <h3>Mercado Direto</h3>
+            <div class="ad-box concorrencia">⚔️ Soluções Rivais<br><span style="font-size:0.65rem; display:block; margin-top:5px; color:#8b949e;">Contratação por escolha e confiança assíncrona.</span></div>
         </aside>
-
     </div>
 
-    <script>
-        const canvas = document.getElementById('regraCanvas');
-        const ctx = canvas.getContext('2d');
-
-        // Ajustar tamanho interno do canvas
-        function resizeCanvas() {
-            canvas.width = canvas.parentElement.clientWidth - 20;
-            canvas.height = 230;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-
-        // Nós que representam o caminho lógico da criação das regras
-        const passos = [
-            { x: 50, y: 115, label: "Saved Info", desc: "Regras Iniciais", color: "#6366f1" },
-            { x: 220, y: 115, label: "Mapeamento", desc: "1440 minutos / 101 NPCs", color: "#3b82f6" },
-            { x: 400, y: 115, label: "Geolocalização", desc: "[1][1][1][1] a [9][9][9][9]", color: "#06b6d4" },
-            { x: 580, y: 115, label: "Gemini Console", desc: "Processador Lógico", color: "#10b981" },
-            { x: 750, y: 115, label: "Mídia Interativa", desc: "Jogo & Simulação", color: "#f59e0b" }
-        ];
-
-        let offset = 0;
-
-        function animar() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Desenhar linhas de conexão com pulso animado
-            ctx.beginPath();
-            ctx.strokeStyle = "#334155";
-            ctx.lineWidth = 4;
-            ctx.moveTo(passos[0].x, passos[0].y);
-            for(let i = 1; i < passos.length; i++) {
-                ctx.lineTo(passos[i].x, passos[i].y);
-            }
-            ctx.stroke();
-
-            // Linha de energia brilhante correndo pelas conexões
-            ctx.beginPath();
-            ctx.strokeStyle = "#38bdf8";
-            ctx.lineWidth = 2;
-            ctx.setLineDash([15, 30]);
-            ctx.lineDashOffset = -offset;
-            ctx.moveTo(passos[0].x, passos[0].y);
-            for(let i = 1; i < passos.length; i++) {
-                ctx.lineTo(passos[i].x, passos[i].y);
-            }
-            ctx.stroke();
-            ctx.setLineDash([]); // Reseta o dash
-
-            // Desenhar os Nós (Passos)
-            passos.forEach((p) => {
-                // Círculo brilhante externo
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 14, 0, Math.PI * 2);
-                ctx.fillStyle = "#020617";
-                ctx.strokeStyle = p.color;
-                ctx.lineWidth = 3;
-                ctx.fill();
-                ctx.stroke();
-
-                // Ponto central
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
-                ctx.fillStyle = p.color;
-                ctx.fill();
-
-                // Textos explicativos
-                ctx.fillStyle = "#e2e8f0";
-                ctx.font = "bold 12px sans-serif";
-                ctx.textAlign = "center";
-                ctx.fillText(p.label, p.x, p.y - 25);
-
-                ctx.fillStyle = "#94a3b8";
-                ctx.font = "10px sans-serif";
-                ctx.fillText(p.desc, p.x, p.y + 30);
-            });
-
-            offset += 0.5;
-            requestAnimationFrame(animar);
-        }
-
-        animar();
-    </script>
 </body>
 </html>

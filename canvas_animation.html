@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Canvas Flow Engine</title>
+    <style>
+        body { background: #0d1117; color: #c9d1d9; font-family: monospace; padding: 20px; text-align: center; }
+        canvas { background: #010409; border: 1px solid #30363d; margin-top: 15px; border-radius: 8px; width: 100%; max-width: 800px; height: auto; }
+    </style>
+</head>
+<body>
+
+    <h2>Animação de Estado das Regras (Console Gemini como Compilador)</h2>
+    <p style="color:#8b949e; font-size:0.85rem;">Processamento em tempo real do ecossistema e integridade das regras</p>
+    
+    <canvas id="flowCanvas" width="800" height="200"></canvas>
+
+    <script>
+        const canvas = document.getElementById('flowCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const etapas = [
+            { x: 100, y: 100, label: "Saved Info", desc: "Regras Fundamentais", color: "#ff7b72" },
+            { x: 300, y: 100, label: "101 NPCs Máx", desc: "Teto de Integridade", color: "#79c0ff" },
+            { x: 500, y: 100, label: "1440 minutos", desc: "Fuso Linear", color: "#7ee787" },
+            { x: 700, y: 100, label: "Local Storage", desc: "Banco de Produção", color: "#d2a8ff" }
+        ];
+
+        let animationFrameOffset = 0;
+
+        function desenharFluxo() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Conexões Estáticas
+            ctx.beginPath();
+            ctx.strokeStyle = "#21262d";
+            ctx.lineWidth = 4;
+            ctx.moveTo(etapas[0].x, etapas[0].y);
+            for(let i = 1; i < etapas.length; i++) ctx.lineTo(etapas[i].x, etapas[i].y);
+            ctx.stroke();
+
+            // Pulso brilhante de energia (Animação JavaScript pura)
+            ctx.beginPath();
+            ctx.strokeStyle = "#58a6ff";
+            ctx.lineWidth = 2;
+            ctx.setLineDash([15, 20]);
+            ctx.lineDashOffset = -animationFrameOffset;
+            ctx.moveTo(etapas[0].x, etapas[0].y);
+            for(let i = 1; i < etapas.length; i++) ctx.lineTo(etapas[i].x, etapas[i].y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Nós de Fluxo
+            etapas.forEach(pt => {
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, 12, 0, Math.PI * 2);
+                ctx.fillStyle = "#0d1117";
+                ctx.strokeStyle = pt.color;
+                ctx.lineWidth = 3;
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = "#c9d1d9";
+                ctx.font = "bold 11px monospace";
+                ctx.textAlign = "center";
+                ctx.fillText(pt.label, pt.x, pt.y - 20);
+                
+                ctx.fillStyle = "#8b949e";
+                ctx.font = "10px monospace";
+                ctx.fillText(pt.desc, pt.x, pt.y + 25);
+            });
+
+            animationFrameOffset += 0.6;
+            requestAnimationFrame(desenharFluxo);
+        }
+
+        window.onload = dezenharFluxo;
+    </script>
+</body>
+</html>
