@@ -3,155 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[BBS ENGINE] Painel do Jogo RPG</title>
+    <title>Consultoria IA, Elétrica & Lógica</title>
     <style>
-        body {
-            background-color: #0a0a0a;
-            color: #00ff00;
-            font-family: 'Courier New', Courier, monospace;
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
+            padding: 0;
         }
-        header {
-            border-bottom: 2px dashed #00ff00;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+        body, html {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            overflow: hidden;
         }
-        h1, h2 {
-            margin: 5px 0;
-            text-transform: uppercase;
-        }
-        .status-bar {
-            background-color: #111;
-            padding: 10px;
-            border: 1px solid #00ff00;
-            margin-bottom: 20px;
+        /* Simulação da Estrutura de Frames (10% | 80% | 10%) */
+        .container {
             display: flex;
-            justify-content: space-between;
+            height: 100vh;
+            width: 100vw;
         }
-        .grid-container {
-            display: flex;
-            gap: 20px;
-        }
-        .painel {
-            border: 1px solid #00ff00;
+        .frame-left {
+            flex: 0 0 10%;
+            background-color: #1e293b;
+            border-right: 2px solid #334155;
             padding: 15px;
-            width: 50%;
-            height: 450px;
-            background-color: #050505;
+            font-size: 0.85rem;
+            overflow-y: auto;
+        }
+        .frame-center {
+            flex: 0 0 80%;
+            background-color: #0f172a;
+            padding: 20px;
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
+            gap: 20px;
         }
-        .conteudo-scroll {
-            flex-grow: 1;
+        .frame-right {
+            flex: 0 0 10%;
+            background-color: #1e293b;
+            border-left: 2px solid #334155;
+            padding: 15px;
+            font-size: 0.85rem;
             overflow-y: auto;
-            margin-top: 10px;
-            padding-right: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        /* Componentes Gerais */
+        h2, h3 {
+            color: #38bdf8;
+            margin-bottom: 10px;
         }
         ul {
             list-style-type: none;
-            padding: 0;
-            margin: 0;
         }
         li {
-            padding: 6px;
-            border-bottom: 1px solid #003300;
+            margin-bottom: 8px;
+            padding: 5px;
+            background: #334155;
+            border-radius: 4px;
         }
-        a {
-            color: #00ffff;
-            text-decoration: none;
+        .canvas-container {
+            position: relative;
+            background: #020617;
+            border: 1px solid #38bdf8;
+            border-radius: 8px;
+            padding: 10px;
         }
-        a:hover {
-            color: #ffffff;
-            text-decoration: underline;
+        canvas {
+            display: block;
+            width: 100%;
+            height: 250px;
+            background: #020617;
         }
-        /* Custom Scrollbar estilo terminal */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0a0a0a; }
-        ::-webkit-scrollbar-thumb { background: #005500; border: 1px solid #00ff00; }
+        .ad-space {
+            border: 2px dashed #475569;
+            padding: 20px 10px;
+            text-align: center;
+            color: #64748b;
+            border-radius: 6px;
+            font-style: italic;
+        }
+        .console-box {
+            background-color: #011627;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            font-family: monospace;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>[BBS RPG ENGINE] - Sistema de Simulação Híbrida</h1>
-        <div>Conectado à Matriz de Dados Offline via APIs</div>
-    </header>
-
-    <div class="status-bar">
-        <span>SISTEMA: <strong style="color: #fff;">ATIVO</strong></span>
-        <span>MECÂNICA: <strong style="color: #ff00ff;">3D&T Pocket</strong></span>
-        <span>CICLO DO MOTOR: <span id="timer-status">0s</span></span>
-    </div>
-
-    <div class="grid-container">
+    <div class="container">
         
-        <div class="painel">
-            <h2>[Wikipedia] Temas Recentes (1s)</h2>
-            <div class="conteudo-scroll">
-                <ul id="lista-temas">
-                    <li>[Aguardando conexão com o motor externo...]</li>
-                </ul>
-            </div>
-        </div>
+        <aside class="frame-left">
+            <h2>Portfólio</h2>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-bottom:15px;">Nossos escopos e frentes de atuação:</p>
+            <ul>
+                <li>🛠️ Consultoria em Regras de IA</li>
+                <li>⚡ Projetos Elétricos Residenciais</li>
+                <li>📐 Arquitetura de Algoritmos</li>
+                <li>🎮 Engenharia de Prompt e RPG</li>
+                <li>🤖 Lógica de Automação</li>
+                <li>🔒 Travas de Segurança Virtual</li>
+            </ul>
+        </aside>
 
-        <div class="painel">
-            <h2>[eRepublik] Banco de NPCs Online</h2>
-            <div class="conteudo-scroll">
-                <ul id="lista-npcs">
-                    <li>[Aguardando processamento dos 7 dados...]</li>
-                </ul>
+        <main class="frame-center">
+            <header>
+                <h1>Consultoria em Regras de I.A. & Engenharia de Sistemas</h1>
+                <p>Análise de arquitetura e infraestrutura virtual utilizando o Gemini como console de processamento.</p>
+            </header>
+
+            <hr style="border-color: #334155;">
+
+            <section class="canvas-container">
+                <h3>Visualização de Ciclo das Regras (Canvas Ativo)</h3>
+                <canvas id="regraCanvas"></canvas>
+            </section>
+
+            <section>
+                <h3>Revisão das Diretrizes Fundamentais (Saved Information)</h3>
+                <p style="margin-bottom: 10px;">Como transformamos regras textuais estritas em mídia de jogo funcional interpretada pelo Console Gemini:</p>
+                
+                <div class="console-box">
+                    <p><span style="color:#f78c6c;">[Regra 001]</span> Integridade do Código: Trava matemática absoluta (Limite estável de 1440 min/dia e teto máximo de 101 NPCs).</p>
+                    <br>
+                    <p><span style="color:#f78c6c;">[Regra 002]</span> Evolução de Carreira: Fixação geográfica nas coordenadas [1][1][1][1] a [9][9][9][9] para NPCs com 3 habilidades dominadas.</p>
+                    <br>
+                    <p><span style="color:#f78c6c;">[Regra 003]</span> Janela Cronológica: Fluxo dinâmico de tráfego segmentado em blocos rotineiros baseados no tempo virtual linear.</p>
+                </div>
+            </section>
+
+            <section>
+                <h3>O Gemini como Console de Execução</h3>
+                <p>Nesta arquitetura, a inteligência artificial não atua apenas como geradora de texto, mas sim como um <strong>compilador de estado e motor de física social</strong>. Cada interação do usuário atualiza as matrizes geográficas, recalcula as moedas baseadas em idiomas e dita o fluxo de tráfego urbano dos agentes virtuais sem intervenção de banco de dados tradicional rígido, baseando-se estritamente na credibilidade e lógica de contexto.</p>
+            </section>
+        </main>
+
+        <aside class="frame-right">
+            <h2>Mercado</h2>
+            <p style="font-size:0.75rem; color:#94a3b8;">Espaço reservado para monetização, credibilidade e contratos autônomos à distância:</p>
+            
+            <div class="ad-space">
+                Anúncio:<br>Softwares de Automação Elétrica
             </div>
-        </div>
+            
+            <div class="ad-space">
+                Espaço Parceiro:<br>Certificações I.A.
+            </div>
+
+            <div class="ad-space" style="border-color: #ef4444; color: #f87171;">
+                Vitrine de Concorrência:<br><span style="font-size:0.7rem;">Contratação por Preferência e Confiança</span>
+            </div>
+        </aside>
 
     </div>
 
     <script>
-        // CONFIGURAÇÃO DE DIRECIONAMENTO DE BACKEND:
-        // Altere a URL abaixo para o arquivo correspondente que sua hospedagem suportar.
-        // Exemplos: "api.py", "index.php", "cgi-bin/motor.cgi" ou "/" (se usar Flask)
-        const BACKEND_URL = "/api-dados"; 
+        const canvas = document.getElementById('regraCanvas');
+        const ctx = canvas.getContext('2d');
 
-        async function atualizarPainelJogo() {
-            try {
-                // Puxa os dados gerados dinamicamente pelo script de background (.py, .php ou .cgi)
-                const resposta = await fetch(BACKEND_URL);
-                if (!resposta.ok) throw new Error('Falha na resposta do servidor.');
-                
-                const dados = await json();
-                
-                // 1. Atualiza o painel da Wikipedia
-                const listaTemas = document.getElementById('lista-temas');
-                listaTemas.innerHTML = '';
-                dados.temas.reverse().slice(0, 20).forEach(tema => {
-                    listaTemas.innerHTML += `<li>[TEMA] <a href="${tema.link}" target="_blank">${tema.titulo}</a></li>`;
-                });
+        // Ajustar tamanho interno do canvas
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth - 20;
+            canvas.height = 230;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
 
-                // 2. Atualiza o painel dos NPCs do eRepublik
-                const listaNpcs = document.getElementById('lista-npcs');
-                listaNpcs.innerHTML = '';
-                dados.npcs.forEach(npc => {
-                    listaNpcs.innerHTML += `
-                        <li>
-                            <b>ID:</b> ${npc.id} - <a href="site_offline/${npc.id}.html">${npc.nome}</a><br>
-                            <small>Região: ${npc.regiao} | MU: ${npc.mu} | Partido: ${npc.partido} | Amigos: ${npc.friends}</small>
-                        </li>
-                    `;
-                });
+        // Nós que representam o caminho lógico da criação das regras
+        const passos = [
+            { x: 50, y: 115, label: "Saved Info", desc: "Regras Iniciais", color: "#6366f1" },
+            { x: 220, y: 115, label: "Mapeamento", desc: "1440 minutos / 101 NPCs", color: "#3b82f6" },
+            { x: 400, y: 115, label: "Geolocalização", desc: "[1][1][1][1] a [9][9][9][9]", color: "#06b6d4" },
+            { x: 580, y: 115, label: "Gemini Console", desc: "Processador Lógico", color: "#10b981" },
+            { x: 750, y: 115, label: "Mídia Interativa", desc: "Jogo & Simulação", color: "#f59e0b" }
+        ];
 
-                document.getElementById('timer-status').innerText = "Sincronizado";
-                document.getElementById('timer-status').style.color = "#00ff00";
+        let offset = 0;
 
-            } catch (erro) {
-                console.error("Erro ao conectar com o script de background:", erro);
-                document.getElementById('timer-status').innerText = "Erro de Conexão";
-                document.getElementById('timer-status').style.color = "#ff0000";
+        function animar() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Desenhar linhas de conexão com pulso animado
+            ctx.beginPath();
+            ctx.strokeStyle = "#334155";
+            ctx.lineWidth = 4;
+            ctx.moveTo(passos[0].x, passos[0].y);
+            for(let i = 1; i < passos.length; i++) {
+                ctx.lineTo(passos[i].x, passos[i].y);
             }
+            ctx.stroke();
+
+            // Linha de energia brilhante correndo pelas conexões
+            ctx.beginPath();
+            ctx.strokeStyle = "#38bdf8";
+            ctx.lineWidth = 2;
+            ctx.setLineDash([15, 30]);
+            ctx.lineDashOffset = -offset;
+            ctx.moveTo(passos[0].x, passos[0].y);
+            for(let i = 1; i < passos.length; i++) {
+                ctx.lineTo(passos[i].x, passos[i].y);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]); // Reseta o dash
+
+            // Desenhar os Nós (Passos)
+            passos.forEach((p) => {
+                // Círculo brilhante externo
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 14, 0, Math.PI * 2);
+                ctx.fillStyle = "#020617";
+                ctx.strokeStyle = p.color;
+                ctx.lineWidth = 3;
+                ctx.fill();
+                ctx.stroke();
+
+                // Ponto central
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+
+                // Textos explicativos
+                ctx.fillStyle = "#e2e8f0";
+                ctx.font = "bold 12px sans-serif";
+                ctx.textAlign = "center";
+                ctx.fillText(p.label, p.x, p.y - 25);
+
+                ctx.fillStyle = "#94a3b8";
+                ctx.font = "10px sans-serif";
+                ctx.fillText(p.desc, p.x, p.y + 30);
+            });
+
+            offset += 0.5;
+            requestAnimationFrame(animar);
         }
 
-        // Executa a primeira carga e define o intervalo de atualização idêntico ao motor (a cada 2-3 segundos na tela do player)
-        atualizarPainelJogo();
-        setInterval(atualizarPainelJogo, 3000);
+        animar();
     </script>
 </body>
 </html>
