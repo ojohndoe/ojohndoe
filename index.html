@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Arcade BBS - Console DosBox</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body, html { height: 100%; font-family: monospace; background-color: #0d1117; color: #c9d1d9; overflow: hidden; }
+        
+        /* Estrutura Base de Quadros (10% | 80% | 10%) */
+        .main-container { display: flex; height: 100vh; width: 100vw; }
+        
+        /* Quadro Esquerdo: Lista de Jogos (10%) */
+        .frame-left { flex: 0 0 10%; background-color: #161b22; border-right: 2px solid #30363d; padding: 12px; font-size: 0.8rem; overflow-y: auto; }
+        
+        /* Quadro Central: Emulador / JogoAtivo (80%) */
+        .frame-center { flex: 0 0 80%; background-color: #0d1117; display: flex; flex-direction: column; height: 100%; border: none; }
+        
+        /* Quadro Direito: Inbox WhatsApp (10%) */
+        .frame-right { flex: 0 0 10%; background-color: #161b22; border-left: 2px solid #30363d; padding: 12px; font-size: 0.8rem; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        
+        /* Componentes de Interface */
+        h3 { color: #58a6ff; margin-bottom: 10px; border-bottom: 1px solid #30363d; padding-bottom: 4px; font-size: 0.85rem; text-align: center; }
+        .game-btn { display: block; width: 100%; background: #21262d; color: #58a6ff; border: 1px solid #30363d; padding: 10px 5px; margin-bottom: 8px; border-radius: 4px; cursor: pointer; text-align: center; font-size: 0.75rem; font-weight: bold; font-family: monospace; }
+        .game-btn:hover, .game-btn.active { background: #30363d; color: #79c0ff; border-color: #58a6ff; }
+        
+        iframe { width: 100%; height: 100%; border: none; background: #000; }
+        .no-game { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; color: #8b949e; text-align: center; padding: 20px; }
+        
+        /* Formulário de Mensagem */
+        .whatsapp-box { display: flex; flex-direction: column; gap: 10px; background: #0d1117; padding: 10px; border: 1px solid #30363d; border-radius: 6px; }
+        label { font-size: 0.75rem; color: #8b949e; }
+        textarea { width: 100%; height: 120px; background: #161b22; color: #e2e8f0; border: 1px solid #30363d; border-radius: 4px; padding: 6px; font-family: monospace; font-size: 0.8rem; resize: none; }
+        textarea:focus { border-color: #58a6ff; outline: none; }
+        .send-btn { background: #238636; color: white; border: 1px solid #2ea44f; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: monospace; font-size: 0.75rem; width: 100%; text-align: center; text-decoration: none; display: inline-block; }
+        .send-btn:hover { background: #2ea44f; }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        
+        <aside class="frame-left">
+            <h3>MS-DOS Vault</h3>
+            <button class="game-btn" onclick="carregarJogo('doom', this)">Doom (1993)</button>
+            <button class="game-btn" onclick="carregarJogo('prince', this)">Prince of Persia</button>
+            <button class="game-btn" onclick="carregarJogo('pacman', this)">Ms. Pac-Man</button>
+            <button class="game-btn" onclick="carregarJogo('simcity', this)">SimCity (1989)</button>
+            <button class="game-btn" onclick="carregarJogo('wolf3d', this)">Wolfenstein 3D</button>
+        </aside>
+
+        <main class="frame-center" id="display-principal">
+            <div class="no-game" id="tela-espera">
+                <h2>🎮 CONSOLE DOSBOX RETRÔ</h2>
+                <p style="margin-top: 10px; max-width: 500px; font-size: 0.9rem;">
+                    Selecione um título no menu da esquerda para carregar o emulador assíncrono diretamente na janela central.
+                </p>
+            </div>
+            <iframe id="game-frame" style="display: none;" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"></iframe>
+        </main>
+
+        <aside class="frame-right">
+            <h3>Inbox Transmissão</h3>
+            <div class="whatsapp-box">
+                <label>Destinatário Fixo:</label>
+                <div style="color: #7ee787; font-weight: bold; font-size: 0.75rem; margin-bottom: 5px;">+55 11 9633-13423</div>
+                
+                <label for="msg-text">Mensagem Lógica:</label>
+                <textarea id="msg-text" placeholder="Digite comandos, logs de algoritmos ou avisos aqui..."></textarea>
+                
+                <button class="send-btn" onclick="dispararWhatsapp()">Enviar Terminal</button>
+            </div>
+            <p style="font-size: 0.65rem; color: #8b949e; text-align: center; line-height: 1.2;">
+                O disparo abrirá a API oficial do WhatsApp com a string de texto pré-formatada.
+            </p>
+        </aside>
+
+    </div>
+
+    <script>
+        // URLs estáveis de emuladores baseados em DosBox/WebAssembly fornecidos pelo Internet Archive
+        const BIBLIOTECA_JOGOS = {
+            doom: "https://archive.org/embed/doom-playable",
+            prince: "https://archive.org/embed/msdos_Prince_of_Persia_1990",
+            pacman: "https://archive.org/embed/msdos_Ms._Pac-Man_1983",
+            simcity: "https://archive.org/embed/msdos_SimCity_1989",
+            wolf3d: "https://archive.org/embed/Wolfenstein3d"
+        };
+
+        function carregarJogo(chave, elementoBtn) {
+            // Remove classe ativa de outros botões
+            document.querySelectorAll('.game-btn').forEach(btn => btn.classList.remove('active'));
+            // Adiciona classe ativa ao botão clicado
+            elementoBtn.classList.add('active');
+
+            const iframe = document.getElementById('game-frame');
+            const telaEspera = document.getElementById('tela-espera');
+
+            if (BIBLIOTECA_JOGOS[chave]) {
+                telaEspera.style.display = 'none';
+                iframe.style.display = 'block';
+                // Define a URL do frame central para puxar o jogo do repositório DOSBox estático
+                iframe.src = BIBLIOTECA_JOGOS[chave];
+            }
+        }
+
+        function dispararWhatsapp() {
+            const numero = "5511963313423";
+            const texto = document.getElementById('msg-text').value;
+            
+            if (!texto.trim()) {
+                alert("Por favor, digite alguma mensagem no terminal antes de enviar.");
+                return;
+            }
+
+            // Sanitiza e formata a string para transporte URL seguro
+            const urlFormatada = `https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(texto)}`;
+            
+            // Abre o link em tempo real no navegador sem quebrar o jogo aberto
+            window.open(urlFormatada, '_blank');
+        }
+    </script>
+</body>
+</html>
